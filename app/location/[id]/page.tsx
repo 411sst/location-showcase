@@ -3,13 +3,14 @@ import { locations } from '@/data/locations';
 import { LocationClient } from './LocationClient';
 
 interface LocationPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function LocationPage({ params }: LocationPageProps) {
-  const location = locations.find(loc => loc.id === params.id);
+export default async function LocationPage({ params }: LocationPageProps) {
+  const { id } = await params;
+  const location = locations.find(loc => loc.id === id);
 
   if (!location) {
     notFound();
