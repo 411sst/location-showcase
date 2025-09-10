@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
@@ -12,22 +12,22 @@ interface CarouselProps {
 export function ImageCarousel({ images, alt }: CarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const nextImage = () => {
+  const nextImage = useCallback(() => {
     setCurrentIndex((prevIndex) =>
       prevIndex === images.length - 1 ? 0 : prevIndex + 1
     );
-  };
+  }, [images.length]);
 
-  const prevImage = () => {
+  const prevImage = useCallback(() => {
     setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? images.length - 1 : prevIndex - 1
     );
-  };
+  }, [images.length]);
 
   useEffect(() => {
     const timer = setInterval(nextImage, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [nextImage]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -37,7 +37,7 @@ export function ImageCarousel({ images, alt }: CarouselProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [prevImage, nextImage]);
 
   return (
     <section className="py-16 bg-gray-50">
