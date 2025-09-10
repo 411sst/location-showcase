@@ -1,6 +1,5 @@
 'use client';
-import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface HeroProps {
   image: string;
@@ -10,37 +9,36 @@ interface HeroProps {
 
 export function Hero({ image, title, description }: HeroProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    // Preload the image
+    const img = new Image();
+    img.src = image;
+    img.onload = () => {
+      setImageLoaded(true);
+    };
+    img.onerror = () => {
+      console.error('Failed to load image:', image);
+      setImageLoaded(true); // Still show content even if image fails
+    };
+  }, [image]);
 
   return (
     <section className="relative h-screen w-full overflow-hidden">
-      {/* Background color fallback while image loads */}
-      <div className={`absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-700 ${imageLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-500`} />
+      {/* Always show a background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" />
       
-      <div className="absolute inset-0">
-        {!imageError ? (
-          <>
-            <Image
-              src={image}
-              alt={title}
-              fill
-              priority
-              className={`object-cover ${imageLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}
-              sizes="100vw"
-              onLoad={() => setImageLoaded(true)}
-              onError={() => {
-                console.error('Failed to load hero image:', image);
-                setImageError(true);
-              }}
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-40" />
-          </>
-        ) : (
-          // Fallback gradient if image fails to load
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-purple-900 to-pink-900">
-            <div className="absolute inset-0 bg-black bg-opacity-30" />
-          </div>
-        )}
+      {/* Image with fade-in effect */}
+      <div 
+        className={`absolute inset-0 transition-opacity duration-1000 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+        style={{ 
+          backgroundImage: `url(${image})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <div className="absolute inset-0 bg-black bg-opacity-40" />
       </div>
       
       <div className="relative z-10 flex h-full items-center justify-center text-center text-white">
